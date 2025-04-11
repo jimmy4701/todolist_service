@@ -44,7 +44,21 @@ app.post('/tasks', (req, res) => {
     console.log(body)
     runFromDB(`INSERT INTO Task (title, completed) VALUES ("${body.title}", "0")`)
     res.status(200).send("Task created")
-} )
+})
+
+app.put('/tasks/:id', async (req, res) => {
+    const { id } = req.params
+    const tasks = await allFromDB(`SELECT * FROM Task WHERE id = ${id}`)
+    const task = tasks[0]
+    await runFromDB(`UPDATE Task SET completed = ${task?.completed ? 0 : 1} WHERE id = ${task?.id}`)
+    res.status(200).send(`Tâche modifiée (${task?.completed ? "Pas finie 👎" : "Finie 👍"})`)
+})
+
+app.delete('/tasks/:id', (req, res) => {
+    const { id } = req.params
+    runFromDB(`DELETE FROM Task WHERE id = ${id}`)
+    res.send("Tâche supprimée 😭")
+})
 
 app.listen(port, () => {
     console.log("✅ Server launched....")
