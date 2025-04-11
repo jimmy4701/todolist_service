@@ -15,12 +15,27 @@ const runFromDB = (sql_request) => {
     return result
 }
 
+const allFromDB = async (sql_request) => {
+    
+    return new Promise((resolve, reject) => {
+        const db = new sqlite3.Database('db.sqlite');
+        db.all(sql_request, [], (err, rows) => {
+            if(err){
+                reject(err)
+            } else {
+                resolve(rows)
+            }
+        })
+        db.close() 
+    })
+}
+
 // Initialisation de la base de données
 runFromDB("CREATE TABLE IF NOT EXISTS Task (id INTEGER PRIMARY KEY ASC, title TEXT, completed TINYINT)");
 
 
-app.get('/tasks', (req, res) => {
-    const tasks = runFromDB("SELECT * FROM Task")
+app.get('/tasks', async  (req, res) => {
+    const tasks = await allFromDB("SELECT * FROM Task")
     res.send(tasks)
 })
 
